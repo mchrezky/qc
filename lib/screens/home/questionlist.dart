@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:qc/main.dart';
 
 import 'package:dio/dio.dart' as http_dio;
-import 'package:http/http.dart' as http;
 import 'package:qc/constants.dart';
 import 'package:qc/models/question.dart';
 
@@ -20,6 +20,13 @@ class _QuestionListState extends State<QuestionList> {
   _QuestionListState({
     Key key,
   });
+  final _formKey = GlobalKey<FormState>();
+
+  var opsi = [
+    "GOOD",
+    "NOT GOOD",
+  ];
+  String opsi_select;
   http_dio.Dio dio = http_dio.Dio();
   Future<List<Question>> getQc() async {
     final todo = ModalRoute.of(context).settings.arguments;
@@ -30,8 +37,9 @@ class _QuestionListState extends State<QuestionList> {
     print(response.data);
 
     if (response.statusCode == 200) {
-      final List rawData = jsonDecode(jsonEncode(response.data));
-      List<Question> listQuestion = rawData.map((f) => Question.fromJson(f)).toList();
+      final List rawData = jsonDecode(jsonEncode(response.data['data']));
+      List<Question> listQuestion =
+          rawData.map((f) => Question.fromJson(f)).toList();
       print(response.data);
       print("ok");
       return listQuestion;
@@ -41,137 +49,98 @@ class _QuestionListState extends State<QuestionList> {
     }
   }
 
+  final TextEditingController namaController = new TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getQc(),
-      builder: (BuildContext context, AsyncSnapshot<List<Question>> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-            return Container(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-            break;
-          case ConnectionState.waiting:
-            return Container(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-            break;
-          case ConnectionState.active:
-            return Container(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-            break;
-          case ConnectionState.done:
-            print("satu");
-            print(snapshot.hasData);
-            if (snapshot.hasError) {
-              // return Container(
-              //     color: Colors.white,
-              //     child: Center(
-              //         child: new Column(
-              //       mainAxisAlignment: MainAxisAlignment.center,
-              //       children: <Widget>[
-              //         new Text("Network Connection Error\n\n"),
-              //         new FlatButton.icon(
-              //           // padding: EdgeInsets.all(10.0),
-              //           // color: Colors.greenAccent,
-              //           icon: CircleAvatar(
-              //             backgroundColor: Colors.blue,
-              //             radius: 20.0,
-              //             child: new Icon(
-              //               Icons.refresh,
-              //               color: Colors.white,
-              //               size: 30.0,
-              //             ),
-              //           ),
-              //           label: Text(""),
-              //           onPressed: () {
-              //             Navigator.push(
-              //                 context,
-              //                 MaterialPageRoute(
-              //                   builder: (context) => HomeScreen(),
-              //                 ));
-              //           },
-              //         ),
-              //         // new Icon(
-              //         //   Icons.refresh,
-              //         //   color: Colors.blue,
-              //         // ),
-              //         new Text("\nRefresh  " + snapshot.hasError.toString(),
-              //             style:
-              //                 new TextStyle(fontSize: 25, color: Colors.blue))
-              //       ],
-              //     )));
-            } else {
-              //list ikan
-              print("tampilkan data");
-              print(snapshot.data.length);
-              print(snapshot.data);
-              return Container(
-                height: 250,
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index) {
-                      return Row(
-                        children: <Widget>[
-                          RecomendPlantCard(
-                            id:snapshot.data[index].idQuestion,
-                            alat: snapshot.data[index].noAlat,
-                            question: snapshot.data[index].question,
-                            cat: snapshot.data[index].cat,
-                            press: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => DetailsScreen(),
-                              //   ),
-                              // );
-                            },
-                          ),
-                        ],
-                      );
-                    }),
-              );
-              // ListView.builder(
-              //         scrollDirection: Axis.vertical,
-              //         shrinkWrap: true,
-              //         itemCount: snapshot.data.length,
-              //         itemBuilder: (context, index) {
-              //           return Row(
-              //               children: <Widget>[
-              //                 RecomendPlantCard(
-              //                   image:
-              //                       "https://amanahamarta.com/wp-content/uploads/2018/12/segue-blog-whatis-quality-control-as-service.png",
-              //                   title: "Cakalang",
-              //                   country: "Pelagis Besar",
-              //                   cust: 440,
-              //                   press: () {
-              //                     // Navigator.push(
-              //                     //   context,
-              //                     //   MaterialPageRoute(
-              //                     //     builder: (context) => DetailsScreen(),
-              //                     //   ),
-              //                     // );
-              //                   },
-              //                 ),
-              //               ],
+    Size size = MediaQuery.of(context).size;
 
-              //           );
-              //         });
-            }
-            break;
-        }
-        return Container();
-      },
+    final appTitle = 'Form Validation Demo';
+
+    return MaterialApp(
+      title: appTitle,
+      home: Scaffold(
+        appBar: AppBar(
+          // actionsIconTheme: Colors.black,
+          title: Text(
+            "Question List",
+            style: TextStyle(color: Colors.black),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: Colors.black, //change your color here
+          ),
+        ),
+        body: Container(
+          color: Colors.white,
+          child: FutureBuilder(
+            future: getQc(),
+            builder: (BuildContext context,
+                AsyncSnapshot<List<Question>> snapshots) {
+              switch (snapshots.connectionState) {
+                case ConnectionState.none:
+                  return Container(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                  break;
+                case ConnectionState.waiting:
+                  return Container(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                  break;
+                case ConnectionState.active:
+                  return Container(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                  break;
+                case ConnectionState.done:
+                  if (snapshots.hasError) {
+                    print("data not show recomende");
+                    print(snapshots.data);
+                    return Container(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  } else {
+                    print("datas tertampilkan");
+                    return Container(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        itemCount: snapshots.data.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                              leading: Text((index+1).toString()),
+                              // const Icon(Icons.flight_land),
+                              title:  Text(snapshots.data[index].question),
+                              subtitle:
+                                  const Text('Result: Good'),
+                              trailing:  Icon(Icons.check_circle_outline,color: Colors.blue,),
+                              onTap: () => print("ListTile"));
+                        },
+                      ),
+                    );
+
+                    //
+                  }
+
+                  break;
+              }
+              return Container();
+            },
+          ),
+        ),
+      ),
     );
   }
 }
@@ -187,7 +156,7 @@ class RecomendPlantCard extends StatelessWidget {
   }) : super(key: key);
 
   final String alat, question;
-  final int id,cat;
+  final int id, cat;
   final Function press;
 
   @override
@@ -241,7 +210,7 @@ class RecomendPlantCard extends StatelessWidget {
                   ),
                   Spacer(),
                   Text(
-                   "$cat".toUpperCase(),
+                    "$cat".toUpperCase(),
                     style: Theme.of(context)
                         .textTheme
                         .button

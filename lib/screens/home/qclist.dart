@@ -7,6 +7,7 @@ import 'package:dio/dio.dart' as http_dio;
 import 'package:http/http.dart' as http;
 import 'package:qc/constants.dart';
 import 'package:qc/models/sewa.dart';
+import 'package:qc/screens/home/questionlist.dart';
 
 class QcList extends StatefulWidget {
   const QcList({
@@ -129,16 +130,8 @@ class _QcListState extends State<QcList> {
                             alat: snapshot.data[index].noAlat,
                             tgl: snapshot.data[index].tglSewa,
                             cust: snapshot.data[index].idCustomer,
-                            press: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => DetailsScreen(),
-                              //   ),
-                              // );
-                            },
-                          ),
-                        ],
+                            press: null,
+                          )],
                       );
                     }),
               );
@@ -205,7 +198,15 @@ class RecomendPlantCard extends StatelessWidget {
         children: <Widget>[
           Image.network(image),
           GestureDetector(
-            onTap: press,
+            onTap: () {
+               Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => QuestionList(),
+                                ),
+                              );
+            
+            },
             child: Container(
               padding: EdgeInsets.all(kDefaultPadding / 2),
               decoration: BoxDecoration(
