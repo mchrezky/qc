@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:qc/constants.dart';
 import 'package:qc/models/sewa.dart';
 import 'package:qc/screens/home/questionlist.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class QcList extends StatefulWidget {
   const QcList({
@@ -23,10 +24,13 @@ class _QcListState extends State<QcList> {
   });
   http_dio.Dio dio = http_dio.Dio();
   Future<List<Sewa>> getQc() async {
-    final todo = ModalRoute.of(context).settings.arguments;
+    print("qc-pic");
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     int id = (prefs.getInt('id') ?? false);
+     print(id);
 
     http_dio.Response response =
-        await dio.get(url_root + "index.php?r=sewa/qc-pic&id=3");
+        await dio.get(url_root + "index.php?r=sewa/qc-pic&id="+id.toString());
     print(response.statusCode);
     print(response.data);
 
@@ -127,11 +131,13 @@ class _QcListState extends State<QcList> {
                           RecomendPlantCard(
                             image:
                                 "https://amanahamarta.com/wp-content/uploads/2018/12/segue-blog-whatis-quality-control-as-service.png",
-                            alat: snapshot.data[index].noAlat,
+                            alat: snapshot.data[index].alat,
+                            id: snapshot.data[index].noSewa,
                             tgl: snapshot.data[index].tglSewa,
-                            cust: snapshot.data[index].idCustomer,
+                            cust: snapshot.data[index].customer,
                             press: null,
-                          )],
+                          )
+                        ],
                       );
                     }),
               );
@@ -175,12 +181,13 @@ class RecomendPlantCard extends StatelessWidget {
     Key key,
     this.image,
     this.alat,
+    this.id,
     this.tgl,
     this.cust,
     this.press,
   }) : super(key: key);
 
-  final String image, alat, tgl;
+  final String image,id, alat, tgl;
   final String cust;
   final Function press;
 
@@ -199,13 +206,11 @@ class RecomendPlantCard extends StatelessWidget {
           Image.network(image),
           GestureDetector(
             onTap: () {
-               Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => QuestionList(),
-                                ),
-                              );
-            
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => new QuestionList(),
+                      settings: RouteSettings(arguments: id)));
             },
             child: Container(
               padding: EdgeInsets.all(kDefaultPadding / 2),
@@ -223,31 +228,26 @@ class RecomendPlantCard extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                            text: "$alat\n".toUpperCase(),
-                            style: Theme.of(context).textTheme.button),
-                        TextSpan(
-                          text: "Use at: $tgl",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: kPrimaryColor.withOpacity(0.5),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Spacer(),
                   Text(
-                   "$cust".toUpperCase(),
+                    "$alat".toUpperCase(),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                     style: Theme.of(context)
                         .textTheme
                         .button
                         .copyWith(color: kPrimaryColor),
+                  ),
+                  Text(
+                    "$cust".toUpperCase(),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: kPrimaryColor.withOpacity(0.5),
+                          ),
                   )
                 ],
               ),

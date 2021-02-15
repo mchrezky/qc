@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:qc/main.dart';
 
 import 'package:dio/dio.dart' as http_dio;
+import 'package:http/http.dart' as http;
 import 'package:qc/constants.dart';
 import 'package:qc/models/question.dart';
+import 'package:qc/screens/home/home_screen.dart';
+import 'package:qc/screens/home/result.dart';
 
 class QuestionList extends StatefulWidget {
   const QuestionList({
@@ -32,7 +36,7 @@ class _QuestionListState extends State<QuestionList> {
     final todo = ModalRoute.of(context).settings.arguments;
 
     http_dio.Response response =
-        await dio.get(url_root + "index.php?r=question/question&id=C-001");
+        await dio.get(url_root + "index.php?r=question/question&id=" + todo);
     print(response.statusCode);
     print(response.data);
 
@@ -49,10 +53,76 @@ class _QuestionListState extends State<QuestionList> {
     }
   }
 
+  post(String id, result, remark) async {
+    // sharedPreferences.clear();
+    final todo = ModalRoute.of(context).settings.arguments;
+
+    Map data = {
+      'id_sewa': todo,
+      'id_question': id,
+      'result': result,
+      'cek_inspection': remark
+    };
+    print(id);
+    print('cek login');
+    var response =
+        await http.post(url_root + "index.php?r=question/answers", body: data);
+    print(response.body);
+    if (response.statusCode == 200) {
+      print('start');
+      if (json.decode(response.body)['status'] != 0) {
+        print("login ok");
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => new QuestionList(),
+                settings: RouteSettings(arguments: todo)));
+      } else {
+        print('gagal');
+        info(context, json.decode(response.body)['message']);
+        print(json.decode(response.body)['message']);
+      }
+    } else {
+      print(response.body);
+    }
+  }
+
+  void info(BuildContext context, String status) {
+    // _scaffoldKey.currentState.showSnackBar(SnackBar(
+    //   content: Text(status),
+    //   backgroundColor: Colors.red,
+    //   duration: Duration(seconds: 3),
+    // ));
+    Flushbar(
+      duration: Duration(seconds: 3),
+      borderRadius: 8,
+      backgroundGradient: LinearGradient(
+        colors: [Colors.red.shade800, Colors.redAccent.shade700],
+        stops: [0.6, 1],
+      ),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black45,
+          offset: Offset(3, 3),
+          blurRadius: 3,
+        ),
+      ],
+      // All of the previous Flushbars could be dismissed by swiping down
+      // now we want to swipe to the sides
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      // The default curve is Curves.easeOut
+      forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+      title: 'Info!',
+      message: status,
+    ).show(context);
+  }
+
   final TextEditingController namaController = new TextEditingController();
 
+  final TextEditingController remark = new TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final todo = ModalRoute.of(context).settings.arguments;
     Size size = MediaQuery.of(context).size;
 
     final appTitle = 'Form Validation Demo';
@@ -62,11 +132,37 @@ class _QuestionListState extends State<QuestionList> {
       home: Scaffold(
         appBar: AppBar(
           // actionsIconTheme: Colors.black,
+          leading: Padding(
+            padding: EdgeInsets.only(left: 12),
+            child: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            HomeScreen()),
+                    (Route<dynamic> route) => false);
+                // runApp(MyApp());
+              }, // omitting onPressed makes the button disabled
+            ),
+          ),
           title: Text(
-            "Question List",
+            "Question List"+todo,
             style: TextStyle(color: Colors.black),
           ),
           centerTitle: true,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.article, color: Colors.amber),
+              onPressed: () {
+                Navigator.push(
+          context,
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new ResultPage(id: todo),
+              settings: RouteSettings(arguments: todo)));
+              }, // omitting onPressed makes the button disabled
+            ),
+          ],
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: IconThemeData(
@@ -120,13 +216,252 @@ class _QuestionListState extends State<QuestionList> {
                         itemCount: snapshots.data.length,
                         itemBuilder: (context, index) {
                           return ListTile(
-                              leading: Text((index+1).toString()),
+                              leading: Text((index + 1).toString()),
                               // const Icon(Icons.flight_land),
-                              title:  Text(snapshots.data[index].question),
-                              subtitle:
-                                  const Text('Result: Good'),
-                              trailing:  Icon(Icons.check_circle_outline,color: Colors.blue,),
-                              onTap: () => print("ListTile"));
+                              title: Text(snapshots.data[index].question),
+                              subtitle: snapshots.data[index].result == null
+                                  ? Text('')
+                                  : Text(snapshots.data[index].result),
+                              trailing: snapshots.data[index].result == null
+                                  ? Icon(Icons.add_circle_outline,
+                                      color: Colors.green)
+                                  : snapshots.data[index].result == 'GOOD'
+                                      ? Icon(Icons.check_circle_outline,
+                                          color: Colors.blue)
+                                      : Icon(
+                                          Icons.remove_circle_outline,
+                                          color: Colors.red,
+                                        ),
+                              onTap: snapshots.data[index].result == null
+                                  ? () async {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (_) => Dialog(
+                                          child: Container(
+                                            height: size.height * 0.35,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(15.0),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Form(
+                                                key: _formKey,
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      "Your Answer" +
+                                                          snapshots
+                                                              .data[index].id
+                                                              .toString(),
+                                                      style: TextStyle(
+                                                        fontFamily: 'Roboto',
+                                                        color: Colors.black,
+                                                        fontSize: 22,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height:
+                                                          size.height * 0.05,
+                                                    ),
+                                                    Text(
+                                                      (index + 1).toString() +
+                                                          ". " +
+                                                          snapshots.data[index]
+                                                              .question,
+                                                      style: TextStyle(
+                                                        fontFamily: 'Roboto',
+                                                        color: Colors.black,
+                                                        fontSize: 18.0,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height:
+                                                          size.height * 0.02,
+                                                    ),
+                                                    Container(
+                                                      alignment:
+                                                          AlignmentDirectional
+                                                              .centerStart,
+                                                      child: Text(
+                                                        "remark :",
+                                                        style: TextStyle(
+                                                          fontFamily: 'Roboto',
+                                                          // fontWeight: FontWeight.bold,
+                                                          color: Colors.black,
+                                                          fontSize: 18.0,
+                                                          // fontWeight: FontWeight.w700,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TextFormField(
+                                                      controller: remark,
+                                                      decoration: InputDecoration(
+                                                          // hintText: "Alamat Email Anda",
+                                                          // labelText: "Alamat Email Anda"
+                                                          ),
+                                                      validator: (value) {
+                                                        if (value.isEmpty) {
+                                                          return 'Please enter some text';
+                                                        }
+                                                      },
+                                                    ),
+                                                    Center(
+                                                      child: Row(
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .fromLTRB(
+                                                                    15.0,
+                                                                    20.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                            child: Container(
+                                                              width:
+                                                                  size.width *
+                                                                      0.3,
+                                                              // height: 40.0,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                // border: Border.all(),
+                                                                // color: Colors.black54,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5.0),
+                                                              ),
+                                                              child:
+                                                                  RaisedButton
+                                                                      .icon(
+                                                                elevation: 4,
+                                                                color: Colors
+                                                                    .green,
+                                                                onPressed:
+                                                                    () async {
+                                                                  post(
+                                                                      snapshots
+                                                                          .data[
+                                                                              index]
+                                                                          .id
+                                                                          .toString(),
+                                                                      "GOOD",
+                                                                      remark
+                                                                          .text);
+                                                                },
+                                                                icon:
+                                                                    CircleAvatar(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  radius: 10.0,
+                                                                  child:
+                                                                      new Icon(
+                                                                    Icons.check,
+                                                                    color: Colors
+                                                                        .green,
+                                                                    size: 10.0,
+                                                                  ),
+                                                                ),
+                                                                label: Center(
+                                                                  child: Text(
+                                                                    "GOOD",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Spacer(),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .fromLTRB(
+                                                                    0.0,
+                                                                    20.0,
+                                                                    15.0,
+                                                                    0.0),
+                                                            child: Container(
+                                                              width:
+                                                                  size.width *
+                                                                      0.3,
+                                                              // height: 40.0,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                // border: Border.all(),
+                                                                // color: Colors.black54,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5.0),
+                                                              ),
+                                                              child:
+                                                                  RaisedButton
+                                                                      .icon(
+                                                                elevation: 4,
+                                                                color:
+                                                                    Colors.red,
+                                                                onPressed:
+                                                                    () async {
+                                                                  post(
+                                                                      snapshots
+                                                                          .data[
+                                                                              index]
+                                                                          .id
+                                                                          .toString(),
+                                                                      "NOT GOOD",
+                                                                      remark
+                                                                          .text);
+                                                                },
+                                                                icon:
+                                                                    CircleAvatar(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  radius: 10.0,
+                                                                  child:
+                                                                      new Icon(
+                                                                    Icons.check,
+                                                                    color: Colors
+                                                                        .red,
+                                                                    size: 10.0,
+                                                                  ),
+                                                                ),
+                                                                label: Center(
+                                                                  child: Text(
+                                                                    "NOT GOOD",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  : () async {});
                         },
                       ),
                     );

@@ -4,6 +4,7 @@ import 'package:qc/components/my_bottom_nav_bar.dart';
 import 'package:qc/constants.dart';
 import 'package:qc/screens/home/listsewa.dart';
 import 'package:qc/screens/home/qclist.dart';
+import 'package:qc/screens/home/questionlist.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // class HomeScreen extends StatelessWidget {
@@ -147,7 +148,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: <Widget>[
                           Expanded(
                             child: TextField(
-                              onChanged: (value) {},
+                              onChanged: (value) {
+                                     Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => new QuestionList(),
+                                                settings: RouteSettings(
+                                                    arguments: value)));
+                              },
                               decoration: InputDecoration(
                                 hintText: "Search",
                                 hintStyle: TextStyle(

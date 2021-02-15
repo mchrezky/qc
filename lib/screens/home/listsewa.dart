@@ -130,9 +130,9 @@ class _ListSewaState extends State<ListSewa> {
                     itemBuilder: (context, index) {
                       return FeaturePlantCard(
                         nosewa: snapshot.data[index].noSewa,
-                        noalat: snapshot.data[index].noAlat,
-                        customer: snapshot.data[index].idCustomer,
-                        pic: snapshot.data[index].namaPic,
+                        noalat: snapshot.data[index].alat,
+                        customer: snapshot.data[index].customer,
+                        pic: snapshot.data[index].pic,
                       );
                     })
                 );
@@ -197,13 +197,13 @@ class FeaturePlantCard extends StatelessWidget {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                            text: "No Sewa : $nosewa \n".toUpperCase(),
+                            text: "$noalat \n".toUpperCase(),
                             style: Theme.of(context)
                                 .textTheme
                                 .button
                                 .copyWith(color: kPrimaryColor)),
                         TextSpan(
-                            text: "Customer : $customer\n".toUpperCase(),
+                            text: "$customer\n".toUpperCase(),
                             style: Theme.of(context).textTheme.button),
                         TextSpan(
                           text: " Pic : $pic".toUpperCase(),
@@ -217,7 +217,7 @@ class FeaturePlantCard extends StatelessWidget {
                   ),
                   Spacer(),
                   Text(
-                    '$noalat',
+                    '$nosewa',
                     style: Theme.of(context)
                         .textTheme
                         .button

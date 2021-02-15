@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qc/components/my_bottom_nav_bar.dart';
 import 'package:qc/main.dart';
+import 'package:qc/screens/home/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -41,10 +42,10 @@ class SettingsPage extends StatelessWidget {
               leading: Icon(Icons.person),
               title: Text('Profil Saya'),
               onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (BuildContext context) => new Profile()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => new Profile()));
               },
               // selected: true,
             ),
