@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:qc/main.dart';
 import 'package:http/http.dart' as http;
+import 'package:qc/screens/home/home_screen.dart';
 import 'package:qc/screens/home/questionlist.dart';
 
 
@@ -93,8 +94,9 @@ class _ResultState extends State<ResultPage> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (BuildContext context) => new QuestionList(),
-                        settings: RouteSettings(arguments: todo)));
+                        builder: (BuildContext context) => new HomeScreen(),
+                        // settings: RouteSettings(arguments: todo)
+                        ));
               }, // omitting onPressed makes the button disabled
             ),
           ),

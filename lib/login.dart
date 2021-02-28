@@ -273,10 +273,10 @@ class _LoginPageState extends State<LoginPage> {
               padding: EdgeInsets.fromLTRB(20.0, 150.0, 20.0, 5.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   SizedBox(
-                    height: 180.0,
+                    height: 100.0,
                     child: Image.asset(
                       "assets/icons/logo.png",
                       fit: BoxFit.contain,

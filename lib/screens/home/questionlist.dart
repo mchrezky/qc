@@ -72,11 +72,11 @@ class _QuestionListState extends State<QuestionList> {
       print('start');
       if (json.decode(response.body)['status'] != 0) {
         print("login ok");
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => new QuestionList(),
-                settings: RouteSettings(arguments: todo)));
+        Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => new QuestionList(),
+                      settings: RouteSettings(arguments: todo)));
       } else {
         print('gagal');
         info(context, json.decode(response.body)['message']);
@@ -139,15 +139,14 @@ class _QuestionListState extends State<QuestionList> {
               onPressed: () {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            HomeScreen()),
+                        builder: (BuildContext context) => HomeScreen()),
                     (Route<dynamic> route) => false);
                 // runApp(MyApp());
               }, // omitting onPressed makes the button disabled
             ),
           ),
           title: Text(
-            "Question List"+todo,
+            "Question List",
             style: TextStyle(color: Colors.black),
           ),
           centerTitle: true,
@@ -156,10 +155,11 @@ class _QuestionListState extends State<QuestionList> {
               icon: Icon(Icons.article, color: Colors.amber),
               onPressed: () {
                 Navigator.push(
-          context,
-          new MaterialPageRoute(
-              builder: (BuildContext context) => new ResultPage(id: todo),
-              settings: RouteSettings(arguments: todo)));
+                    context,
+                    new MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            new ResultPage(id: todo),
+                        settings: RouteSettings(arguments: todo)));
               }, // omitting onPressed makes the button disabled
             ),
           ],
@@ -252,10 +252,7 @@ class _QuestionListState extends State<QuestionList> {
                                                 child: Column(
                                                   children: [
                                                     Text(
-                                                      "Your Answer" +
-                                                          snapshots
-                                                              .data[index].id
-                                                              .toString(),
+                                                      "Your Answer",
                                                       style: TextStyle(
                                                         fontFamily: 'Roboto',
                                                         color: Colors.black,

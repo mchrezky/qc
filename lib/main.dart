@@ -5,8 +5,10 @@ import 'package:qc/screens/home/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // String url_root = 'http://192.168.137.1/shti/index.php/api';
-String url_root = 'http://192.168.100.10/qc-apps/frontend/web/';
-String url_asset = 'http://192.168.100.10/qc-apps/frontend/web/';
+// String url_root = 'http://192.168.100.10/qc-apps/frontend/web/';
+// String url_asset = 'http://192.168.100.10/qc-apps/frontend/web/';
+String url_root = 'https://api-qc.ke-nikahan.com/';
+String url_asset = 'https://api-qc.ke-nikahan.com/';
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {

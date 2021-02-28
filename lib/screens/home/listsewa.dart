@@ -9,6 +9,7 @@ import 'package:qc/constants.dart';
 import 'package:qc/main.dart';
 import 'package:qc/models/sewa.dart';
 import 'package:qc/screens/home/home_screen.dart';
+import 'package:qc/screens/home/result.dart';
 
 class ListSewa extends StatefulWidget {
   const ListSewa({
@@ -173,7 +174,13 @@ class FeaturePlantCard extends StatelessWidget {
         children: <Widget>[
           // Image.asset(image),
           GestureDetector(
-            // onTap: press,
+            onTap: () {
+                Navigator.push(
+          context,
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new ResultPage(id: nosewa),
+              settings: RouteSettings(arguments: nosewa)));
+              },
             child: Container(
               padding: EdgeInsets.all(kDefaultPadding / 2),
               decoration: BoxDecoration(
